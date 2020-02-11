@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([["ccbd"],{DpAU:function(n,e,s){(window.__NEXT_P=window.__NEXT_P||[]).push(["/next.config",function(){var n=s("FsEE");return{page:n.default||n}}])},FsEE:function(n,e,s){"use strict";n.exports={target:"serverless"}}},[["DpAU","5d41"]]]);
