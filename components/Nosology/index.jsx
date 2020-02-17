@@ -35,41 +35,43 @@ const Nosology = ({ values }) => {
   return (
     <ListWidgetStyled title="Диспансерный учет по нозологиям">
       <Container>
-        <Box>
-          {percents.map((value, index) => {
-            const offset = angle(
-              percents
-                .slice(0, index)
-                .reduce((acc, currentValue) => acc + currentValue, 0)
-            );
+        <BoxContainer>
+          <Box>
+            {percents.map((value, index) => {
+              const offset = angle(
+                percents
+                  .slice(0, index)
+                  .reduce((acc, currentValue) => acc + currentValue, 0)
+              );
 
-            const height = 100 - (offset * 40) / 360;
+              const height = 100 - (offset * 40) / 360;
 
-            return (
-              <Pie
-                key={values[index].title}
-                index={index}
-                title={values[index].title}
-                count={values[index].count}
-                value={value}
-                offset={offset}
-                height={height}
-                color={values[index].color}
-                diff={diffs[index]}
-                selectedPart={selectedPart}
-                onFocus={() => setSelectedPart(values[index].title)}
-                onMouseOver={() => setSelectedPart(values[index].title)}
-                onMouseLeave={() => setSelectedPart(null)}
-                isActive={values[index].title === selectedPart}
-              />
-            );
-          })}
+              return (
+                <Pie
+                  key={values[index].title}
+                  index={index}
+                  title={values[index].title}
+                  count={values[index].count}
+                  value={value}
+                  offset={offset}
+                  height={height}
+                  color={values[index].color}
+                  diff={diffs[index]}
+                  selectedPart={selectedPart}
+                  onFocus={() => setSelectedPart(values[index].title)}
+                  onMouseOver={() => setSelectedPart(values[index].title)}
+                  onMouseLeave={() => setSelectedPart(null)}
+                  isActive={values[index].title === selectedPart}
+                />
+              );
+            })}
 
-          <Circle>
-            <PatientsCount>{sum}</PatientsCount>
-            <div>Пациентов на учете</div>
-          </Circle>
-        </Box>
+            <Circle>
+              <PatientsCount>{sum}</PatientsCount>
+              <div>Пациентов на учете</div>
+            </Circle>
+          </Box>
+        </BoxContainer>
 
         <ListContainer>
           {sortedValues.map(value => (
@@ -111,13 +113,23 @@ Nosology.propTypes = {
 export default Nosology;
 
 const ListWidgetStyled = styled(ListWidget)`
-  width: auto;
-  min-width: 66%;
+  width: 100%;
 `;
 
 const Container = styled.div`
   display: flex;
+  flex-wrap: wrap;
   overflow: hidden;
+`;
+
+const BoxContainer = styled.div`
+  display: flex;
+  justify-content: center;
+
+  margin: 48px;
+  margin-left: 145px;
+  margin-right: 200px;
+  flex: 1 0 300px;
 `;
 
 const Box = styled.div`
@@ -125,16 +137,6 @@ const Box = styled.div`
 
   width: 300px;
   height: 300px;
-
-  z-index: 1;
-
-  margin: 48px;
-  margin-left: 145px;
-  margin-right: 200px;
-
-  flex: 300px;
-  min-width: 300px;
-  max-width: 300px;
 `;
 
 const Circle = styled.div`
@@ -168,10 +170,10 @@ const PatientsCount = styled.div`
 `;
 
 const ListContainer = styled.div`
-  border-left: 1px solid gray;
-  flex: 1;
   display: flex;
   flex-direction: column;
+  flex: 1 1 350px;
+  border-left: 1px solid gray;
 `;
 
 const Icon = styled.div`
@@ -187,8 +189,8 @@ const Icon = styled.div`
 `;
 
 const ListItem = styled.div`
-  flex: 1;
   display: flex;
+  flex: 1;
   align-items: center;
   font-size: 1.6rem;
 
@@ -226,7 +228,8 @@ const ListItemContent = styled.div`
   justify-content: space-between;
   border-bottom: 1px solid rgb(244, 244, 244);
   flex: 1;
-  height: 100%;
+  height: calc(100% - 32px);
+  padding: 16px 0;
 `;
 
 const ListItemValue = styled.div`
