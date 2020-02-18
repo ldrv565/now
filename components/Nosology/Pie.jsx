@@ -164,6 +164,13 @@ const Line = styled.div`
         (800 + -+!isActive * (800 - height * 8) + isActive * 10) / 2}% + 40px
   );
 
+  @media (max-width: 700px) {
+    left: calc(
+      ${({ isActive, height }) =>
+          (800 + -+!isActive * (800 - height * 8) + isActive * 10) / 2}% + 20px
+    );
+  }
+
   transition: 0.125s;
 
   background: rgb(
@@ -207,11 +214,15 @@ const Label = styled.div`
 
   width: 150px;
   height: 1px;
+
+  @media (max-width: 700px) {
+    width: 20vw;
+  }
 `;
 
 const Text = styled.div`
   position: absolute;
-  top: -19px;
+  top: -1.6rem;
   left: 0;
   width: 100%;
   text-align: center;

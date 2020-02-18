@@ -7,6 +7,10 @@ import { createGlobalStyle } from 'styled-components';
 const GlobalStyle = createGlobalStyle`
   html {
     font-size: 10px;
+
+    @media (max-width: 700px) {
+      font-size: 8px;
+    }
   }
 
   body {
