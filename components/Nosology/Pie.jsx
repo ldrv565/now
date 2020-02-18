@@ -43,7 +43,7 @@ const Pie = ({
           <Circle color={color} />
         </Part>
       </Container>
-      <LineContainer lineAngle={lineAngle} {...restProps}>
+      <LineContainer isActive={isActive} lineAngle={lineAngle} {...restProps}>
         <Line
           isActive={isActive}
           color={color}
@@ -139,7 +139,6 @@ const Circle = styled.div`
 
   height: 100%;
   width: 100%;
-  z-index: 1;
 `;
 
 const LineContainer = styled.div`
@@ -148,6 +147,7 @@ const LineContainer = styled.div`
   left: 43.75%;
   width: 12.5%;
   height: 12.5%;
+  z-index: ${({ isActive }) => +isActive};
 
   transform: scale(1, -1) rotate(${({ lineAngle }) => lineAngle}deg);
 `;
@@ -155,21 +155,14 @@ const LineContainer = styled.div`
 const Line = styled.div`
   position: absolute;
   width: calc(
-    ${({ height }) => height / 2}% + ${({ diff }) => (diff ? diff * 22 : 0)}px
+    (${({ height }) => height / 2}%) + ${({ diff }) => (diff ? diff * 22 : 0)}px
   );
   height: 1px;
   bottom: 50%;
   left: calc(
-    ${({ isActive, height }) =>
-        (800 + -+!isActive * (800 - height * 8) + isActive * 10) / 2}% + 40px
+    ((${({ isActive, height }) => 105 + -!isActive * (105 - height)}%) + 20%) *
+      4
   );
-
-  @media (max-width: 700px) {
-    left: calc(
-      ${({ isActive, height }) =>
-          (800 + -+!isActive * (800 - height * 8) + isActive * 10) / 2}% + 20px
-    );
-  }
 
   transition: 0.125s;
 
@@ -212,19 +205,12 @@ const Label = styled.div`
     transparent
   );
 
-  width: 150px;
   height: 1px;
-
-  @media (max-width: 700px) {
-    width: 20vw;
-  }
 `;
 
 const Text = styled.div`
-  position: absolute;
-  top: -1.6rem;
-  left: 0;
-  width: 100%;
+  margin-top: -1.5rem;
+  padding: 0 1.5rem;
   text-align: center;
   transform: scale(1, -1);
   white-space: nowrap;

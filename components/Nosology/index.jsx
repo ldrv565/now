@@ -127,13 +127,9 @@ const BoxContainer = styled.div`
   justify-content: center;
 
   margin: 48px;
-  margin-left: 145px;
-  margin-right: 200px;
-  flex: 1 0 300px;
-
-  @media (max-width: 700px) {
-    margin: 24px auto;
-  }
+  margin-left: 15vw;
+  margin-right: 15vw;
+  flex: 1 1 20vw;
 `;
 
 const Box = styled.div`
@@ -143,8 +139,8 @@ const Box = styled.div`
   height: 300px;
 
   @media (max-width: 700px) {
-    width: 40vw;
-    height: 40vw;
+    width: 35vw;
+    height: 35vw;
   }
 `;
 
@@ -176,7 +172,7 @@ const Circle = styled.div`
 `;
 
 const PatientsCount = styled.div`
-  font-size: 32px;
+  font-size: 3rem;
   color: black;
 `;
 
