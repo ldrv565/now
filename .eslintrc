@@ -29,7 +29,7 @@
         ["services", "./services"],
         ["sources", "./sources"],
         ["graphQL", "./graphql"],
-        ["static", "./static"]
+        ["public", "./public"]
       ]
     }
   }

@@ -29,7 +29,13 @@ class MyApp extends App {
     return (
       <>
         <Head>
-          <title>ldrv</title>
+          <title>Offline Next.js with Now 2.0</title>
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="theme-color" content="#72B340" />
+          <meta
+            name="description"
+            content="make your Next.js application work offline using service workers via Google's workbox"
+          />
 
           <link
             href="https://fonts.googleapis.com/css?family=Roboto&display=swap"

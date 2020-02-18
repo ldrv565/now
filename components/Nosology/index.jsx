@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 
-import { PeopleUpIcon, PeopleDownIcon } from 'static/icons';
+import { PeopleUpIcon, PeopleDownIcon } from 'public/icons';
 
 import Pie from './Pie';
 
