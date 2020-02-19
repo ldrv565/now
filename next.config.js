@@ -1,4 +1,14 @@
+const merge = require('webpack-merge');
 const withOffline = require('next-offline');
+const withTM = require('@weco/next-plugin-transpile-modules');
+
+const {
+  config: cfg,
+  fontsLoader,
+  imageLoader,
+  cssLoader,
+  mp3Loader
+} = require('./webpack.config');
 
 const nextConfig = {
   target: 'serverless',
@@ -28,4 +38,30 @@ const nextConfig = {
   }
 };
 
-module.exports = withOffline(nextConfig);
+module.exports = withOffline(
+  withTM({
+    webpack(config, { isServer }) {
+      const { rules } = config.module;
+      rules.push(imageLoader(isServer));
+      rules.push(fontsLoader(isServer));
+      rules.push(cssLoader(isServer));
+      rules.push(mp3Loader(isServer));
+      rules.push({
+        test: /\.svg$/,
+        use: [
+          {
+            loader: '@svgr/webpack',
+            options: {
+              svgProps: {
+                fill: 'currentColor'
+              }
+            }
+          }
+        ]
+      });
+
+      return merge(config, cfg);
+    },
+    ...nextConfig
+  })
+);

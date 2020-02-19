@@ -33,7 +33,7 @@ class MyApp extends App {
     return (
       <>
         <Head>
-          <title>Offline Next.js with Now 2.0</title>
+          <title>Pixelman</title>
           <link rel="manifest" href="/manifest.json" />
           <meta name="theme-color" content="#72B340" />
           <meta
