@@ -37,7 +37,7 @@ export default () => {
 
     if (direction === 'right') {
       setPosition(prevPosition =>
-        prevPosition < width - step ? prevPosition + step : width - step
+        prevPosition <= width - 2 * step ? prevPosition + step : width - step
       );
     }
   };
@@ -125,6 +125,9 @@ const Container = styled.div`
   background-color: black;
   outline: none;
   user-select: none;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
 `;
 
 const Main = styled.div`
