@@ -35,7 +35,7 @@ class MyApp extends App {
         <Head>
           <title>Pixelman</title>
           <link rel="manifest" href="/manifest.json" />
-          <meta name="theme-color" content="#72B340" />
+          <meta name="theme-color" content="#000" />
           <meta
             name="description"
             content="make your Next.js application work offline using service workers via Google's workbox"
