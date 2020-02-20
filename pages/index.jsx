@@ -2,50 +2,107 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import { bg, human, humanWait } from 'public/images';
-import { track } from 'public/sounds';
+import { track, track2 } from 'public/sounds';
+
+const FRAME = 1000 / 15;
+const JUMP_FRAME = FRAME * 6;
+const BOTTOM = 10;
+const humanWidth = 20;
+const step = humanWidth / 4;
+
+const trackLength = 22600;
 
 export default () => {
   const container = useRef();
-  const audioPlayer = useRef();
   const [width, setWidth] = useState(0);
-  const [step, setStep] = useState(0);
 
   useEffect(() => {
     container.current.focus();
-
     const currentWidth = container.current.childNodes[1].offsetWidth;
-
-    setTimeout(() => audioPlayer.current.play(), 500);
     setWidth(currentWidth);
-    setStep(currentWidth / 10);
   }, []);
 
-  const [position, setPosition] = useState(0);
+  const [hasInteracted, setInteracted] = useState(false);
+  const audioPlayer = useRef();
+  const audioPlayer2 = useRef();
+
+  useEffect(() => {
+    if (hasInteracted && audioPlayer.current && audioPlayer2.current) {
+      audioPlayer.current.play();
+      setInterval(() => audioPlayer.current.play(), trackLength * 2);
+      setTimeout(() => {
+        audioPlayer2.current.play();
+        setInterval(() => audioPlayer2.current.play(), trackLength * 2);
+      }, trackLength);
+    }
+  }, [hasInteracted, audioPlayer.current, audioPlayer2.current]);
+
+  const [position, setPosition] = useState({ x: 0, y: BOTTOM });
+
+  const map = useRef();
+
   const [src, setSrc] = useState(humanWait);
   const [isStoped, setStoped] = useState(true);
+  const [isJumping, setJumping] = useState(false);
 
   const [timer, setTimer] = useState();
+  const [jumpTimer, setJumpTimer] = useState();
 
   const go = direction => {
-    setSrc(human);
-
     if (direction === 'left') {
-      setPosition(prevPosition =>
-        prevPosition > step ? prevPosition - step : 0
-      );
+      setPosition(({ x, y }) => ({ x: x > step ? x - step : 0, y }));
     }
 
     if (direction === 'right') {
-      setPosition(prevPosition =>
-        prevPosition <= width - 2 * step ? prevPosition + step : width - step
-      );
+      setPosition(({ x, y }) => ({
+        x: x <= width - step - humanWidth ? x + step : width - humanWidth,
+        y
+      }));
+    }
+
+    if (direction === 'top') {
+      setPosition(({ x, y }) => ({
+        x,
+        y: y + step * 4
+      }));
+    }
+
+    if (direction === 'bottom') {
+      setPosition(({ x }) => ({
+        x,
+        y: BOTTOM
+      }));
     }
   };
 
-  const stop = () => {
+  const stop = e => {
+    if (e.key === 'ArrowUp') {
+      setTimeout(() => {
+        setStoped(stoped => {
+          if (stoped) {
+            setSrc(humanWait);
+          }
+          return stoped;
+        });
+      }, JUMP_FRAME);
+
+      setTimeout(
+        () =>
+          setJumpTimer(currentJumpTimer => {
+            if (jumpTimer === currentJumpTimer) {
+              setJumping(false);
+            }
+            return currentJumpTimer;
+          }),
+        JUMP_FRAME
+      );
+
+      return clearInterval(jumpTimer);
+    }
     setStoped(true);
     clearInterval(timer);
     setSrc(humanWait);
+    return undefined;
   };
 
   const [isGoLeft, setGoLeft] = useState(false);
@@ -53,7 +110,12 @@ export default () => {
   const goLeft = () => {
     if (isStoped) {
       setStoped(false);
-      setTimer(setInterval(() => go('left'), 200));
+      setTimer(
+        setInterval(() => {
+          setSrc(human);
+          go('left');
+        }, FRAME)
+      );
       setGoLeft(true);
     }
   };
@@ -61,12 +123,40 @@ export default () => {
   const goRight = () => {
     if (isStoped) {
       setStoped(false);
-      setTimer(setInterval(() => go('right'), 200));
+      setTimer(
+        setInterval(() => {
+          setSrc(human);
+          go('right');
+        }, FRAME)
+      );
       setGoLeft(false);
     }
   };
 
+  const jump = () => {
+    if (!isJumping) {
+      setJumping(true);
+      setSrc(human);
+      go('top');
+      setTimeout(() => {
+        go('bottom');
+      }, JUMP_FRAME / 2);
+
+      setJumpTimer(
+        setInterval(() => {
+          setSrc(human);
+          go('top');
+          setTimeout(() => {
+            go('bottom');
+          }, JUMP_FRAME / 2);
+        }, JUMP_FRAME)
+      );
+    }
+  };
+
   const onKeyDown = e => {
+    setInteracted(true);
+
     if (e.key === 'ArrowLeft') {
       goLeft();
     }
@@ -75,7 +165,9 @@ export default () => {
       goRight();
     }
 
-    // ArrowUp
+    if (e.key === 'ArrowUp') {
+      jump();
+    }
   };
 
   return (
@@ -85,6 +177,8 @@ export default () => {
         ref={container}
         onKeyDown={onKeyDown}
         onKeyUp={stop}
+        onMouseDown={() => setInteracted(true)}
+        onTouchStart={() => setInteracted(true)}
       >
         <Button
           onMouseDown={goLeft}
@@ -93,14 +187,14 @@ export default () => {
           onTouchEnd={stop}
         />
         <Main>
-          <Background src={bg} width={width} alt="bg" />
+          <Background ref={map} src={bg} width={width} alt="bg" />
           <Content>
             <Human
               isGoLeft={isGoLeft}
               src={src}
               alt="human"
               position={position}
-              width={width / 10}
+              width={humanWidth}
             />
           </Content>
         </Main>
@@ -112,8 +206,10 @@ export default () => {
           onTouchEnd={stop}
         />
       </Container>
-
-      <audio ref={audioPlayer} loop autoPlay="autoplay" src={track}>
+      <audio ref={audioPlayer} src={track}>
+        <track kind="captions" />
+      </audio>
+      <audio ref={audioPlayer2} src={track2}>
         <track kind="captions" />
       </audio>
     </>
@@ -131,12 +227,11 @@ const Container = styled.div`
 `;
 
 const Main = styled.div`
+  display: flex;
+  align-items: flex-end;
   position: relative;
   height: 100vh;
   overflow: hidden;
-  @media (max-width: 500px) {
-    width: 100vw;
-  }
   margin: auto;
 `;
 
@@ -152,18 +247,9 @@ const Content = styled.div`
 `;
 
 const Background = styled.img`
-  height: 100%;
+  min-height: 100%;
   width: auto;
-  font-size: 0;
   image-rendering: pixelated;
-
-  @media (max-width: 500px) {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-  }
 `;
 
 const Button = styled.button`
@@ -178,10 +264,11 @@ const Button = styled.button`
 
 const Human = styled.img`
   image-rendering: pixelated;
-  margin-left: ${({ position }) => position}px;
+  margin-left: ${({ position }) => position.x}px;
+  margin-bottom: ${({ position }) => position.y}px;
   transform: scale(${({ isGoLeft }) => (isGoLeft ? -1 : 1)}, 1);
   width: ${({ width }) => width};
 
-  transition: width 2s cubic-bezier(0.86, 0, 0.07, 1);
-  transition: margin-left 0.2s ease-out;
+  transition: margin-bottom ${JUMP_FRAME / 2}ms ease-in,
+    margin-left ${FRAME}ms linear;
 `;
