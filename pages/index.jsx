@@ -14,32 +14,45 @@ const trackLength = 22600;
 
 export default () => {
   const container = useRef();
-  const [width, setWidth] = useState(0);
+  const camera = useRef();
+  const map = useRef();
+  const [cameraWidth, setCameraWidth] = useState(0);
+  const [mapWidth, setMapWidth] = useState(0);
 
   useEffect(() => {
     container.current.focus();
-    const currentWidth = container.current.childNodes[1].offsetWidth;
-    setWidth(currentWidth);
+    setCameraWidth(camera.current.offsetWidth);
+    setMapWidth(map.current.offsetWidth);
   }, []);
 
-  const [hasInteracted, setInteracted] = useState(false);
-  const audioPlayer = useRef();
-  const audioPlayer2 = useRef();
+  const [position, setPosition] = useState({ x: 0, y: BOTTOM });
+  const [cameraPosition, setCameraPosition] = useState({ x: 0, y: 0 });
+  const isCameraActive = mapWidth > cameraWidth;
 
   useEffect(() => {
-    if (hasInteracted && audioPlayer.current && audioPlayer2.current) {
-      audioPlayer.current.play();
-      setInterval(() => audioPlayer.current.play(), trackLength * 2);
-      setTimeout(() => {
-        audioPlayer2.current.play();
-        setInterval(() => audioPlayer2.current.play(), trackLength * 2);
-      }, trackLength);
+    if (isCameraActive) {
+      if (position.x < (cameraWidth - humanWidth) / 2) {
+        setCameraPosition({
+          ...cameraPosition,
+          x: 0.1
+        });
+      }
+
+      if (position.x > (cameraWidth - humanWidth) / 2) {
+        setCameraPosition({
+          ...cameraPosition,
+          x: position.x - (cameraWidth - humanWidth) / 2
+        });
+      }
+
+      if (position.x >= mapWidth - (cameraWidth + humanWidth) / 2) {
+        setCameraPosition({
+          ...cameraPosition,
+          x: mapWidth - cameraWidth
+        });
+      }
     }
-  }, [hasInteracted, audioPlayer.current, audioPlayer2.current]);
-
-  const [position, setPosition] = useState({ x: 0, y: BOTTOM });
-
-  const map = useRef();
+  }, [isCameraActive && position]);
 
   const [src, setSrc] = useState(humanWait);
   const [isStoped, setStoped] = useState(true);
@@ -55,7 +68,7 @@ export default () => {
 
     if (direction === 'right') {
       setPosition(({ x, y }) => ({
-        x: x <= width - step - humanWidth ? x + step : width - humanWidth,
+        x: x <= mapWidth - step - humanWidth ? x + step : mapWidth - humanWidth,
         y
       }));
     }
@@ -154,6 +167,8 @@ export default () => {
     }
   };
 
+  const [hasInteracted, setInteracted] = useState(false);
+
   const onKeyDown = e => {
     setInteracted(true);
 
@@ -169,6 +184,20 @@ export default () => {
       jump();
     }
   };
+
+  const audioPlayer = useRef();
+  const audioPlayer2 = useRef();
+
+  useEffect(() => {
+    if (hasInteracted && audioPlayer.current && audioPlayer2.current) {
+      audioPlayer.current.play();
+      setInterval(() => audioPlayer.current.play(), trackLength * 2);
+      setTimeout(() => {
+        audioPlayer2.current.play();
+        setInterval(() => audioPlayer2.current.play(), trackLength * 2);
+      }, trackLength);
+    }
+  }, [hasInteracted, audioPlayer.current, audioPlayer2.current]);
 
   return (
     <>
@@ -186,8 +215,8 @@ export default () => {
           onTouchStart={goLeft}
           onTouchEnd={stop}
         />
-        <Main>
-          <Background ref={map} src={bg} width={width} alt="bg" />
+        <Main ref={camera} position={cameraPosition}>
+          <Background ref={map} src={bg} alt="bg" />
           <Content>
             <Human
               isGoLeft={isGoLeft}
@@ -233,6 +262,8 @@ const Main = styled.div`
   height: 100vh;
   overflow: hidden;
   margin: auto;
+  margin-left: ${({ position }) => (position.x ? `-${position.x}px` : 'auto')};
+  transition: margin-left ${FRAME * 2}ms linear;
 `;
 
 const Content = styled.div`
