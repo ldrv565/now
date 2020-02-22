@@ -19,9 +19,7 @@ const GlobalStyle = createGlobalStyle`
       margin: 0;
       overflow-x: hidden;
 
-      background: white;
-      background-size: cover;
-      background-position: top;
+      color: white;
 
     }
 `;
@@ -33,13 +31,10 @@ class MyApp extends App {
     return (
       <>
         <Head>
-          <title>Pixelman</title>
+          <title>Твоя жопа</title>
           <link rel="manifest" href="/manifest.json" />
           <meta name="theme-color" content="#000" />
-          <meta
-            name="description"
-            content="make your Next.js application work offline using service workers via Google's workbox"
-          />
+          <meta name="description" content="твоя жопа" />
 
           <link
             href="https://fonts.googleapis.com/css?family=Roboto&display=swap"

@@ -1,0 +1,15 @@
+{
+  "path-intellisense.mappings": {
+    "components": "${workspaceRoot}/components",
+    "constants": "${workspaceRoot}/constants",
+    "core": "${workspaceRoot}/core",
+    "utils": "${workspaceRoot}/utils",
+    "validation": "${workspaceRoot}/validation",
+    "theme": "${workspaceRoot}/core/theme",
+    "services": "${workspaceRoot}/services",
+    "sources": "${workspaceRoot}/sources",
+    "graphQL": "${workspaceRoot}/graphql",
+    "public": "${workspaceRoot}/public"
+  },
+  "javascript.validate.enable": false
+}

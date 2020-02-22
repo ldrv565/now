@@ -1,3 +1,4 @@
 import Nosology from './Nosology';
+import App from './App';
 
-export { Nosology };
+export { App, Nosology };
