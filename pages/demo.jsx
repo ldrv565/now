@@ -440,39 +440,46 @@ const Page = () => {
     }
 
     function initInput() {
-      window.addEventListener(
-        'mousedown',
-        function(event) {
-          mouseCoords.set(
-            (event.clientX / window.innerWidth) * 2 - 1,
-            -(event.clientY / window.innerHeight) * 2 + 1
-          );
+      const fire = event => {
+        mouseCoords.set(
+          ((event.clientX || event.changedTouches[0].clientX) /
+            window.innerWidth) *
+            2 -
+            1,
+          -(
+            (event.clientY || event.changedTouches[0].clientY) /
+            window.innerHeight
+          ) *
+            2 +
+            1
+        );
 
-          raycaster.setFromCamera(mouseCoords, camera);
+        raycaster.setFromCamera(mouseCoords, camera);
 
-          // Creates a ball and throws it
-          var ballMass = 35;
-          var ballRadius = 0.4;
+        // Creates a ball and throws it
+        var ballMass = 35;
+        var ballRadius = 0.4;
 
-          var ball = new THREE.Mesh(
-            new THREE.SphereBufferGeometry(ballRadius, 14, 10),
-            ballMaterial
-          );
-          ball.castShadow = true;
-          ball.receiveShadow = true;
-          var ballShape = new Ammo.btSphereShape(ballRadius);
-          ballShape.setMargin(margin);
-          pos.copy(raycaster.ray.direction);
-          pos.add(raycaster.ray.origin);
-          quat.set(0, 0, 0, 1);
-          var ballBody = createRigidBody(ball, ballShape, ballMass, pos, quat);
+        var ball = new THREE.Mesh(
+          new THREE.SphereBufferGeometry(ballRadius, 14, 10),
+          ballMaterial
+        );
+        ball.castShadow = true;
+        ball.receiveShadow = true;
+        var ballShape = new Ammo.btSphereShape(ballRadius);
+        ballShape.setMargin(margin);
+        pos.copy(raycaster.ray.direction);
+        pos.add(raycaster.ray.origin);
+        quat.set(0, 0, 0, 1);
+        var ballBody = createRigidBody(ball, ballShape, ballMass, pos, quat);
 
-          pos.copy(raycaster.ray.direction);
-          pos.multiplyScalar(24);
-          ballBody.setLinearVelocity(new Ammo.btVector3(pos.x, pos.y, pos.z));
-        },
-        false
-      );
+        pos.copy(raycaster.ray.direction);
+        pos.multiplyScalar(24);
+        ballBody.setLinearVelocity(new Ammo.btVector3(pos.x, pos.y, pos.z));
+      };
+
+      window.addEventListener('click', fire);
+      window.addEventListener('touchend', fire);
     }
 
     function onWindowResize() {
