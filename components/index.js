@@ -1,4 +1,5 @@
 import Nosology from './Nosology';
 import App from './App';
+import Cube from './Cube';
 
-export { App, Nosology };
+export { Nosology, App, Cube };
