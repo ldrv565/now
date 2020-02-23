@@ -60,6 +60,9 @@ module.exports = {
         graphQL: path.resolve(__dirname, './graphql'),
         static: path.resolve(__dirname, './static')
       }
+    },
+    node: {
+      fs: 'empty'
     }
   },
   imageLoader,
