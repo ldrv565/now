@@ -1,6 +1,5 @@
 const merge = require('webpack-merge');
 const withOffline = require('next-offline');
-const withTM = require('@weco/next-plugin-transpile-modules');
 
 const {
   config: cfg,
@@ -38,30 +37,28 @@ const nextOfflineConfig = {
   }
 };
 
-module.exports = withOffline(
-  withTM({
-    webpack(config, { isServer }) {
-      const { rules } = config.module;
-      rules.push(imageLoader(isServer));
-      rules.push(fontsLoader(isServer));
-      rules.push(cssLoader(isServer));
-      rules.push(mp3Loader(isServer));
-      rules.push({
-        test: /\.svg$/,
-        use: [
-          {
-            loader: '@svgr/webpack',
-            options: {
-              svgProps: {
-                fill: 'currentColor'
-              }
+module.exports = withOffline({
+  webpack(config, { isServer }) {
+    const { rules } = config.module;
+    rules.push(imageLoader(isServer));
+    rules.push(fontsLoader(isServer));
+    rules.push(cssLoader(isServer));
+    rules.push(mp3Loader(isServer));
+    rules.push({
+      test: /\.svg$/,
+      use: [
+        {
+          loader: '@svgr/webpack',
+          options: {
+            svgProps: {
+              fill: 'currentColor'
             }
           }
-        ]
-      });
+        }
+      ]
+    });
 
-      return merge(config, cfg);
-    },
-    ...nextOfflineConfig
-  })
-);
+    return merge(config, cfg);
+  },
+  ...nextOfflineConfig
+});

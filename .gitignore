@@ -1,5 +1,5 @@
 node_modules
 .next
 .now
-.yarn.lock
-.package-lock.json
+**/package-lock.json
+**/yarn.lock
