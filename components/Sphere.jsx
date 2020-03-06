@@ -7,11 +7,13 @@ import AppContext from 'context/app';
 
 const objectSize = 3;
 
-const Cube = ({ wireframe, color, position }) => {
+const Sphere = ({ wireframe, color, position }) => {
   const { add, Ammo } = useContext(AppContext);
 
   useEffect(() => {
-    const geometry = new THREE.BoxGeometry(objectSize, objectSize, objectSize);
+    const radius = objectSize;
+
+    const geometry = new THREE.SphereBufferGeometry(radius, 20, 20);
     const material = new THREE.MeshLambertMaterial({
       color,
       wireframe
@@ -19,9 +21,7 @@ const Cube = ({ wireframe, color, position }) => {
 
     const currentCube = new THREE.Mesh(geometry, material);
 
-    const shape = new Ammo.btBoxShape(
-      new Ammo.btVector3(objectSize / 2, objectSize / 2, objectSize / 2)
-    );
+    const shape = new Ammo.btSphereShape(radius);
 
     currentCube.position.set(position.x || 0, position.y || 0, position.z || 0);
 
@@ -57,10 +57,10 @@ const Cube = ({ wireframe, color, position }) => {
   return React.Fragment;
 };
 
-Cube.propTypes = {
+Sphere.propTypes = {
   wireframe: PropTypes.bool,
   color: PropTypes.string,
   position: PropTypes.object
 };
 
-export default Cube;
+export default Sphere;

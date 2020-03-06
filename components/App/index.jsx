@@ -1,54 +1,130 @@
+/* eslint-disable new-cap */
 import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import * as THREE from 'three';
 
-import AddContext from 'context/add';
+import AppContext from 'context/app';
+
+import { OrbitControls } from 'utils/jsm/controls/OrbitControls';
+
+import initPhysicsWorld from './initPhysicsWorld';
 
 class ThreeScene extends Component {
   constructor(props) {
     super(props);
     this.mount = createRef();
-    this.state = {
-      scene: new THREE.Scene()
-    };
+
+    const [physicsWorld, Ammo] = initPhysicsWorld();
+
+    this.physicsWorld = physicsWorld;
+    this.Ammo = Ammo;
+
+    this.scene = new THREE.Scene();
+    this.clock = new THREE.Clock();
+
+    this.add = this.add.bind(this);
   }
 
   componentDidMount() {
-    // ADD CAMERA
-    this.camera = new THREE.PerspectiveCamera(
-      100,
-      window.innerWidth / window.innerHeight
-    );
+    // add background color
+    this.scene.background = new THREE.Color(0xbfd1e5);
 
+    // init renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor('#000000');
+    this.renderer.shadowMapEnabled = true;
+    this.renderer.shadowMapSoft = true;
+    this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
+
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this.camera.position.z = 4;
-    // ADD RENDERER
-    // ADD CUBE
+    // init camera
+    this.camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.2,
+      2000
+    );
+    this.camera.position.y = 35;
+    this.camera.position.z = 50;
 
-    this.start();
+    // add window resize
+    window.addEventListener('resize', () => {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // add controls
+    const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls = controls;
+
     this.mount.current.appendChild(this.renderer.domElement);
+    this.start();
   }
 
   componentWillUnmount() {
-    this.stop();
     this.mount.current.removeChild(this.renderer.domElement);
+    this.stop();
   }
 
   stop = () => {
     cancelAnimationFrame(this.frameId);
   };
 
+  updatePhysics = deltaTime => {
+    const { children } = this.props;
+    const transformAux = new this.Ammo.btTransform();
+
+    const sceneChildren = this.scene.children.slice(0, children.length);
+    this.physicsWorld.stepSimulation(deltaTime, 10);
+
+    // Update objects
+    sceneChildren.forEach(objThree => {
+      if (objThree) {
+        const objPhys = objThree.userData.physicsBody;
+        const ms = objPhys.getMotionState();
+        if (ms) {
+          ms.getWorldTransform(transformAux);
+          const p = transformAux.getOrigin();
+          const q = transformAux.getRotation();
+          objThree.position.set(p.x(), p.y(), p.z());
+          objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
+        }
+      }
+    });
+  };
+
+  animateChilds = () => {
+    const { children } = this.props;
+
+    const sceneChildren = this.scene.children.slice(0, children.length);
+
+    sceneChildren.forEach(({ animate: elementAnimate }) => {
+      if (elementAnimate) {
+        elementAnimate();
+      }
+    });
+  };
+
   renderScene = () => {
-    const { scene } = this.state;
-    scene.rotation.z += 0.01;
-    scene.rotation.y += 0.01;
-    scene.rotation.x += 0.02;
-    scene.children.forEach(({ animate: elementAnimate }) => elementAnimate());
-    this.renderer.render(scene, this.camera);
+    const deltaTime = this.clock.getDelta();
+
+    this.updatePhysics(deltaTime);
+
+    this.animateChilds();
+
+    this.renderer.render(this.scene, this.camera);
+  };
+
+  add = (mesh, body) => {
+    this.scene.add(mesh);
+
+    if (body) {
+      this.physicsWorld.addRigidBody(body);
+    }
   };
 
   animate = () => {
@@ -63,19 +139,31 @@ class ThreeScene extends Component {
   };
 
   render() {
-    const { scene } = this.state;
-    const { children } = this.props;
+    const { children, terrain, light } = this.props;
+    const TerrainComponent = terrain;
+    const LightComponent = light;
 
     return (
-      <AddContext.Provider value={mesh => scene.add(mesh)}>
-        <Container ref={this.mount}>{children}</Container>
-      </AddContext.Provider>
+      <AppContext.Provider
+        value={{
+          add: this.add,
+          Ammo: this.Ammo
+        }}
+      >
+        <Container ref={this.mount}>
+          {children}
+          <TerrainComponent />
+          <LightComponent />
+        </Container>
+      </AppContext.Provider>
     );
   }
 }
 
 ThreeScene.propTypes = {
-  children: PropTypes.any
+  children: PropTypes.any,
+  terrain: PropTypes.any,
+  light: PropTypes.any
 };
 
 export default ThreeScene;
