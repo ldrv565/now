@@ -1,34 +1,31 @@
 import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
+
 import * as THREE from 'three';
+import CANNON from 'cannon';
 
 import AppContext from 'context/app';
 
-import initPhysics from './initPhysics';
+const objectSize = 300;
 
 const Terrain = () => {
-  const { add, Ammo } = useContext(AppContext);
+  const { add } = useContext(AppContext);
 
   useEffect(() => {
-    const [geometry, body] = initPhysics(
-      {
-        terrainWidthExtents: 100,
-        terrainDepthExtents: 100,
-        terrainWidth: 256,
-        terrainDepth: 256,
-        terrainMaxHeight: 1,
-        terrainMinHeight: 0
-      },
-      Ammo
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(objectSize, objectSize, 10, 10).applyMatrix(
+        new THREE.Matrix4().makeRotationX(-Math.PI / 2)
+      ),
+      new THREE.MeshLambertMaterial({ color: 0xdddddd, wireframe: true })
     );
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
 
-    const groundMaterial = new THREE.MeshPhongMaterial({ color: 0xc7c7c7 });
+    const body = new CANNON.Body({ mass: 0 }).addShape(new CANNON.Plane());
+    body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+    body.position.set(0, 0, 0);
 
-    const terrainMesh = new THREE.Mesh(geometry, groundMaterial);
-    terrainMesh.receiveShadow = true;
-    terrainMesh.castShadow = true;
-
-    add(terrainMesh, body);
+    add(mesh, body);
   }, []);
 
   return React.Fragment;

@@ -10,15 +10,14 @@ import { OrbitControls } from 'utils/jsm/controls/OrbitControls';
 
 import initPhysicsWorld from './initPhysicsWorld';
 
+const timeStep = 1 / 60;
+
 class ThreeScene extends Component {
   constructor(props) {
     super(props);
     this.mount = createRef();
 
-    const [physicsWorld, Ammo] = initPhysicsWorld();
-
-    this.physicsWorld = physicsWorld;
-    this.Ammo = Ammo;
+    this.physicsWorld = initPhysicsWorld();
 
     this.scene = new THREE.Scene();
     this.clock = new THREE.Clock();
@@ -46,8 +45,8 @@ class ThreeScene extends Component {
       0.2,
       2000
     );
-    this.camera.position.y = 35;
-    this.camera.position.z = 50;
+    this.camera.position.x = 200;
+    this.camera.position.y = 100;
 
     // add window resize
     window.addEventListener('resize', () => {
@@ -74,57 +73,34 @@ class ThreeScene extends Component {
     cancelAnimationFrame(this.frameId);
   };
 
-  updatePhysics = deltaTime => {
+  updatePhysics = () => {
     const { children } = this.props;
-    const transformAux = new this.Ammo.btTransform();
-
     const sceneChildren = this.scene.children.slice(0, children.length);
-    this.physicsWorld.stepSimulation(deltaTime, 10);
+
+    // Step the physics world
+    this.physicsWorld.step(timeStep);
 
     // Update objects
-    sceneChildren.forEach(objThree => {
-      if (objThree) {
-        const objPhys = objThree.userData.physicsBody;
-        const ms = objPhys.getMotionState();
-        if (ms) {
-          ms.getWorldTransform(transformAux);
-          const p = transformAux.getOrigin();
-          const q = transformAux.getRotation();
-          objThree.position.set(p.x(), p.y(), p.z());
-          objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
-        }
-      }
-    });
-  };
-
-  animateChilds = () => {
-    const { children } = this.props;
-
-    const sceneChildren = this.scene.children.slice(0, children.length);
-
-    sceneChildren.forEach(({ animate: elementAnimate }) => {
-      if (elementAnimate) {
-        elementAnimate();
-      }
+    sceneChildren.forEach(mesh => {
+      const { body } = mesh.userData;
+      mesh.position.copy(body.position);
+      mesh.quaternion.copy(body.quaternion);
     });
   };
 
   renderScene = () => {
-    const deltaTime = this.clock.getDelta();
-
-    this.updatePhysics(deltaTime);
-
-    this.animateChilds();
-
+    this.updatePhysics();
     this.renderer.render(this.scene, this.camera);
   };
 
   add = (mesh, body) => {
-    this.scene.add(mesh);
-
     if (body) {
-      this.physicsWorld.addRigidBody(body);
+      // eslint-disable-next-line no-param-reassign
+      mesh.userData.body = body;
+      this.physicsWorld.addBody(body);
     }
+
+    this.scene.add(mesh);
   };
 
   animate = () => {
@@ -146,8 +122,7 @@ class ThreeScene extends Component {
     return (
       <AppContext.Provider
         value={{
-          add: this.add,
-          Ammo: this.Ammo
+          add: this.add
         }}
       >
         <Container ref={this.mount}>
