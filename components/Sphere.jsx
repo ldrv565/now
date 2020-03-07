@@ -6,7 +6,7 @@ import CANNON from 'cannon';
 
 import AppContext from 'context/app';
 
-const objectSize = 3;
+const objectSize = 5;
 
 const Sphere = ({ wireframe, color, position }) => {
   const { add } = useContext(AppContext);

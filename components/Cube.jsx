@@ -6,7 +6,7 @@ import CANNON from 'cannon';
 
 import AppContext from 'context/app';
 
-const objectSize = 3;
+const objectSize = 10;
 const shape = [objectSize, objectSize, objectSize];
 
 const Cube = ({ wireframe, color, position }) => {
@@ -24,7 +24,7 @@ const Cube = ({ wireframe, color, position }) => {
     mesh.castShadow = true;
 
     const body = new CANNON.Body({ mass: objectSize * 5 }).addShape(
-      new CANNON.Box(new CANNON.Vec3(...shape))
+      new CANNON.Box(new CANNON.Vec3(...shape.map(x => x / 2)))
     );
     body.position.set(position.x, position.y, position.z);
     body.angularVelocity.set(0, 100, 0);
