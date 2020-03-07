@@ -16,7 +16,7 @@ const Terrain = () => {
       new THREE.PlaneGeometry(objectSize, objectSize, 10, 10).applyMatrix(
         new THREE.Matrix4().makeRotationX(-Math.PI / 2)
       ),
-      new THREE.MeshLambertMaterial({ color: 0xdddddd, wireframe: true })
+      new THREE.MeshLambertMaterial({ color: 0xdddddd })
     );
     mesh.castShadow = true;
     mesh.receiveShadow = true;
