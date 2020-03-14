@@ -9,21 +9,24 @@ import AppContext from 'context/app';
 const objectSize = 1000;
 
 const Terrain = () => {
-  const { add } = useContext(AppContext);
+  const { add, groundMaterial } = useContext(AppContext);
 
   useEffect(() => {
     const mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(objectSize, objectSize).applyMatrix(
-        new THREE.Matrix4().makeRotationX(-Math.PI / 2)
-      ),
+      new THREE.PlaneGeometry(objectSize, objectSize),
       new THREE.MeshLambertMaterial({ color: 0xdddddd })
     );
     mesh.castShadow = true;
     mesh.receiveShadow = true;
 
-    const body = new CANNON.Body({ mass: 0 }).addShape(new CANNON.Plane());
-    body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-    body.position.set(0, 0, 0);
+    // const body = new CANNON.Body({ mass: 0 }).addShape(new CANNON.Plane());
+    // body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+    // body.position.set(0, 0, 0);
+
+    // ground plane
+    const groundShape = new CANNON.Plane();
+    const body = new CANNON.Body({ mass: 0, material: groundMaterial });
+    body.addShape(groundShape);
 
     add(mesh, body);
   }, []);

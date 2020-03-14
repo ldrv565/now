@@ -6,7 +6,8 @@ const {
   fontsLoader,
   imageLoader,
   cssLoader,
-  mp3Loader
+  mp3Loader,
+  gltfLoader
 } = require('./webpack.config');
 
 const nextOfflineConfig = {
@@ -44,6 +45,8 @@ module.exports = withOffline({
     rules.push(fontsLoader(isServer));
     rules.push(cssLoader(isServer));
     rules.push(mp3Loader(isServer));
+    rules.push(gltfLoader(isServer));
+
     rules.push({
       test: /\.svg$/,
       use: [

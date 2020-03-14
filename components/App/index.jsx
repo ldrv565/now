@@ -17,7 +17,11 @@ class ThreeScene extends Component {
     super(props);
     this.mount = createRef();
 
-    this.physicsWorld = initPhysicsWorld();
+    [
+      this.physicsWorld,
+      this.groundMaterial,
+      this.material
+    ] = initPhysicsWorld();
 
     this.scene = new THREE.Scene();
     this.clock = new THREE.Clock();
@@ -47,7 +51,9 @@ class ThreeScene extends Component {
     );
     this.camera.position.x = 200;
     this.camera.position.y = 100;
+    this.camera.position.z = 100;
 
+    this.camera.rotateOnWorldAxis(new THREE.Vector3(50, 50, 50), Math.PI);
     // add window resize
     window.addEventListener('resize', () => {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -74,18 +80,22 @@ class ThreeScene extends Component {
   };
 
   updatePhysics = () => {
-    const { children } = this.props;
-    const sceneChildren = this.scene.children.slice(0, children.length);
-
-    // Step the physics world
     this.physicsWorld.step(timeStep);
 
-    // Update objects
-    sceneChildren.forEach(mesh => {
+    for (
+      let meshIndex = 3; // skip two lights and terrain
+      meshIndex < this.scene.children.length;
+      meshIndex += 1
+    ) {
+      const mesh = this.scene.children[meshIndex];
+
       const { body } = mesh.userData;
-      mesh.position.copy(body.position);
-      mesh.quaternion.copy(body.quaternion);
-    });
+
+      if (body) {
+        mesh.position.copy(body.position);
+        mesh.quaternion.copy(body.quaternion);
+      }
+    }
   };
 
   renderScene = () => {
@@ -115,30 +125,20 @@ class ThreeScene extends Component {
   };
 
   render() {
-    const { children, terrain, light } = this.props;
-    const TerrainComponent = terrain;
-    const LightComponent = light;
+    const { children } = this.props;
+
+    const { add, groundMaterial, material } = this;
 
     return (
-      <AppContext.Provider
-        value={{
-          add: this.add
-        }}
-      >
-        <Container ref={this.mount}>
-          {children}
-          <TerrainComponent />
-          <LightComponent />
-        </Container>
+      <AppContext.Provider value={{ add, groundMaterial, material }}>
+        <Container ref={this.mount}>{children}</Container>
       </AppContext.Provider>
     );
   }
 }
 
 ThreeScene.propTypes = {
-  children: PropTypes.any,
-  terrain: PropTypes.any,
-  light: PropTypes.any
+  children: PropTypes.any
 };
 
 export default ThreeScene;

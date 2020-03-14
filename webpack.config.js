@@ -44,6 +44,13 @@ const mp3Loader = isServer =>
     isServer
   });
 
+const gltfLoader = isServer =>
+  resouceLoader({
+    type: 'model',
+    test: /\.(gltf)$/,
+    isServer
+  });
+
 module.exports = {
   config: {
     resolve: {
@@ -58,7 +65,7 @@ module.exports = {
         services: path.resolve(__dirname, './services'),
         sources: path.resolve(__dirname, './sources'),
         graphQL: path.resolve(__dirname, './graphql'),
-        static: path.resolve(__dirname, './static')
+        public: path.resolve(__dirname, './public')
       }
     },
     node: {
@@ -68,5 +75,6 @@ module.exports = {
   imageLoader,
   fontsLoader,
   cssLoader,
-  mp3Loader
+  mp3Loader,
+  gltfLoader
 };

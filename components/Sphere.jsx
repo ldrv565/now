@@ -9,7 +9,7 @@ import AppContext from 'context/app';
 const objectSize = 5;
 
 const Sphere = ({ wireframe, color, position }) => {
-  const { add } = useContext(AppContext);
+  const { add, material } = useContext(AppContext);
 
   useEffect(() => {
     const mesh = new THREE.Mesh(
@@ -22,7 +22,7 @@ const Sphere = ({ wireframe, color, position }) => {
     mesh.receiveShadow = true;
     mesh.castShadow = true;
 
-    const body = new CANNON.Body({ mass: objectSize * 10 }).addShape(
+    const body = new CANNON.Body({ mass: objectSize * 10, material }).addShape(
       new CANNON.Sphere(objectSize)
     );
     body.position.set(position.x, position.y, position.z);
